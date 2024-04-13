@@ -8,9 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="HtmlAgilityPack" Version="1.11.60" />
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
       <PackageReference Include="Microsoft.SemanticKernel" Version="1.7.1" />
+      <PackageReference Include="PuppeteerSharp" Version="16.0.0" />
     </ItemGroup>
 
     <ItemGroup>

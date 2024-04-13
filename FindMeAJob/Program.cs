@@ -15,7 +15,7 @@ builder.Services.AddSingleton<Sam>();
 var openAiOptions = builder.Configuration.GetSection("OpenAI").Get<OpenAIOptions>()
     ?? throw new Exception("OpenAI configuration is missing.");
 
-builder.Services.AddKernel().AddOpenAIChatCompletion(openAiOptions.ModelName, openAiOptions.ModelName);
+builder.Services.AddKernel().AddOpenAIChatCompletion(openAiOptions.ModelName, openAiOptions.ApiKey);
 
 var app = builder.Build();
 

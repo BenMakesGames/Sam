@@ -1,30 +1,40 @@
 using System.ComponentModel;
+using HtmlAgilityPack;
 using Microsoft.SemanticKernel;
+using PuppeteerSharp;
 
 namespace FindMeAJob.AI.Plugins;
 
 public class WebPlugin
 {
-    private const int MinDelayBetweenWebRequestsInSeconds = 2;
-
-    private long LastGetPageContentsCall { get; set; } = 0;
+    private IBrowser? Browser { get; set; }
+    private IPage? Page { get; set; }
 
     [KernelFunction]
     [Description("gets the contents of a page, given its URL")]
-    public async Task<string> GetPageContents(string url)
+    public async Task<string> GetPageTextAndLinks(string url)
     {
-        // wait at least 2 seconds between page calls
-        var ticksSinceLastCall = DateTime.Now.Ticks - LastGetPageContentsCall;
+        Console.WriteLine($"Sam > GetPageContents {url}");
 
-        if (ticksSinceLastCall < MinDelayBetweenWebRequestsInSeconds * TimeSpan.TicksPerSecond)
-            await Task.Delay((int)((MinDelayBetweenWebRequestsInSeconds * TimeSpan.TicksPerSecond - ticksSinceLastCall) / TimeSpan.TicksPerMillisecond));
+        try
+        {
+            Browser ??= await Puppeteer.LaunchAsync(new LaunchOptions() { Headless = false }); // I wanna watch! :P
+            Page ??= await Browser.NewPageAsync();
 
-        using var client = new HttpClient();
+            await Page.GoToAsync(url, WaitUntilNavigation.Networkidle2);
 
-        var response = await client.GetStringAsync(url);
+            var document = new HtmlDocument();
 
-        LastGetPageContentsCall = DateTime.Now.Ticks;
+            document.LoadHtml(await Page.GetContentAsync());
 
-        return response;
+            var text = document.DocumentNode.InnerText;
+            var links = document.DocumentNode.SelectNodes("//a[@href]").Select(x => x.Attributes["href"].Value).ToList();
+
+            return $"TEXT {text}\n\nLINKS {string.Join(" ", links)}";
+        }
+        catch (Exception e)
+        {
+            return "EXCEPTION " + e.Message;
+        }
     }
 }
