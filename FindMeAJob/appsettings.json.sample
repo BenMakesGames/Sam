@@ -1,0 +1,13 @@
+{
+  "OpenAI": {
+    "Model": "gpt-3.5-turbo",
+    "APIKey": ""
+  },
+  "Sam": {
+    "JobToFind": "I want to become a clothier, in the state of Wyoming.",
+    "UrlsToGetStarted": [
+        "https://www.indeed.com/jobs?q=clothier&l=Wyoming",
+        "https://www.google.com/search?q=jobs+for+clothiers+in+wyoming&ibp=htl;jobs"
+    ]
+  }
+}

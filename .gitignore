@@ -1,0 +1,7 @@
+bin/
+obj/
+.vs/
+.idea/
+
+# copy-paste the appsettings.json.sample to appsettings.json, and fill in the values!
+appsettings.json
