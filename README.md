@@ -99,4 +99,4 @@ Sam > BEN
 Ben > thanks! I'll check it out!
 ```
 
-It got the link totally wrong (I'm sure that's more the fault of my horrible HTML parsing), but I was able to track the job down, anyway (and, yes, I applied, using Sam's text as given! :P)
+It got the link totally wrong (I'm sure that's more the fault of my horrible HTML "parsing" than anything else), but I was able to track the job down, anyway (and, yes, I applied, using Sam's text as given! :P)
