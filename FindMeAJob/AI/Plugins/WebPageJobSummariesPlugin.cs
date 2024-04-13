@@ -43,9 +43,16 @@ public class WebPageJobSummariesPlugin
         var text = document.DocumentNode.InnerText;
         text = Regex.Replace(text, @"\s+", " ");
 
+        var links = document.DocumentNode.SelectNodes("//a[@href]")
+            .Where(a => !string.IsNullOrWhiteSpace(a.GetAttributeValue("href", "")))
+            .Select(a => $"[{a.InnerText}]({a.GetAttributeValue("href", "")})") // you know: "")})" - normal programmer stuff
+            .ToList();
+
+        var stupidText = $"TEXT: {text}\n\nLINKS: {string.Join("\n", links)}";
+
         var history = new ChatHistory();
 
-        history.AddUserMessage("Please extract the details of any job postings from the following text:\n\n" + text);
+        history.AddUserMessage("Please extract the details of any job postings from the following text, matching links to headings. (If there are no job postings, just provide a short summary of the contents of the text.)\n\n" + stupidText);
 
         var chatService = kernel.GetRequiredService<IChatCompletionService>();
 
