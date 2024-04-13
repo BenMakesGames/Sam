@@ -26,7 +26,7 @@ public sealed class Sam: IHostedService
         ChatService = kernel.GetRequiredService<IChatCompletionService>();
 
         kernel.Plugins.AddFromType<WebPageJobSummariesPlugin>();
-        kernel.Plugins.AddFromType<WebPageLinksPlugin>();
+        //kernel.Plugins.AddFromType<WebPageLinksPlugin>(); // commented out, because Sam seemed to get stuck on it a lot
 
         // should this all be in config? ... maybe >_>
         History.AddSystemMessage("Your name is Sam. You are an AI written by Ben to help Ben find a job.");

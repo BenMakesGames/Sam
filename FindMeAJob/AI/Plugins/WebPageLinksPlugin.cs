@@ -40,8 +40,12 @@ public class WebPageLinksPlugin
             .Select(a => $"{a.InnerText} - {a.GetAttributeValue("href", "")}")
             .ToList();
 
-        return links.Count == 0
+        var linkText = links.Count == 0
             ? "(no links found)"
             : string.Join("\n", links);
+
+        Console.WriteLine($"Link Finder > {linkText}");
+
+        return linkText;
     }
 }

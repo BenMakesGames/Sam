@@ -52,7 +52,7 @@ public class WebPageJobSummariesPlugin
 
         var history = new ChatHistory();
 
-        history.AddUserMessage("Please extract the details of any job postings from the following text, matching links to headings. (If there are no job postings, just provide a short summary of the contents of the text.)\n\n" + stupidText);
+        history.AddUserMessage("Please extract the details of any job postings from the following text, matching links to headings, if possible.\n\n" + stupidText);
 
         var chatService = kernel.GetRequiredService<IChatCompletionService>();
 
