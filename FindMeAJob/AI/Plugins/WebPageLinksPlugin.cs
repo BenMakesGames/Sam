@@ -20,8 +20,7 @@ public class WebPageLinksPlugin
         {
             var page = await HorriblePuppeteerHelper.GoToAsync(url, WaitUntilNavigation.Networkidle2);
 
-            return await Summarize(kernel, await page.GetContentAsync())
-               ?? "ERROR: Unable to produce a summary.";
+            return ExtractLinks(await page.GetContentAsync());
         }
         catch (Exception e)
         {
@@ -30,31 +29,19 @@ public class WebPageLinksPlugin
         }
     }
 
-    private static async Task<string?> Summarize(Kernel kernel, string html)
+    private static string ExtractLinks(string html)
     {
-        // the raw HTML can be too long... I don't LOVE this way of reducing it (we lose a lot of context), but it's a start:
         var document = new HtmlDocument();
 
         document.LoadHtml(html);
 
-        var text = document.DocumentNode.InnerText;
-        text = Regex.Replace(text, @"\s+", " ");
+        var links = document.DocumentNode.SelectNodes("//a[@href]")
+            .Where(a => !string.IsNullOrWhiteSpace(a.GetAttributeValue("href", "")))
+            .Select(a => $"{a.InnerText} - {a.GetAttributeValue("href", "")}")
+            .ToList();
 
-        var history = new ChatHistory();
-
-        history.AddUserMessage("Please extract the details of any job postings from the following text:\n\n" + text);
-
-        var chatService = kernel.GetRequiredService<IChatCompletionService>();
-
-        var settings = new OpenAIPromptExecutionSettings()
-        {
-            ToolCallBehavior = ToolCallBehavior.EnableFunctions([]) // intent: prevent recursion
-        };
-
-        var result = await chatService.GetChatMessageContentAsync(history, settings, kernel);
-
-        Console.WriteLine("Summarizer > " + result.Content);
-
-        return result.Content;
+        return links.Count == 0
+            ? "(no links found)"
+            : string.Join("\n", links);
     }
 }

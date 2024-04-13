@@ -45,7 +45,7 @@ public class WebPageJobSummariesPlugin
 
         var links = document.DocumentNode.SelectNodes("//a[@href]")
             .Where(a => !string.IsNullOrWhiteSpace(a.GetAttributeValue("href", "")))
-            .Select(a => $"[{a.InnerText}]({a.GetAttributeValue("href", "")})") // you know: "")})" - normal programmer stuff
+            .Select(a => $"{a.InnerText} - {a.GetAttributeValue("href", "")}")
             .ToList();
 
         var stupidText = $"TEXT: {text}\n\nLINKS: {string.Join("\n", links)}";
