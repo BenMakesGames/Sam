@@ -7,18 +7,19 @@ using Microsoft.SemanticKernel;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddHostedService<Sam>();
-
+// main AI, Sam:
 builder.Services.Configure<SamOptions>(builder.Configuration.GetSection("Sam"));
-builder.Services.AddSingleton<Sam>();
+builder.Services.AddHostedService<Sam>();
 
 var openAiOptions = builder.Configuration.GetSection("OpenAI").Get<OpenAIOptions>()
     ?? throw new Exception("OpenAI configuration is missing.");
 
+// reminder: Kernels are transient!
 builder.Services.AddKernel().AddOpenAIChatCompletion(openAiOptions.ModelName, openAiOptions.ApiKey);
 
 var app = builder.Build();
 
-Console.WriteLine("Start!");
+// let's-a-go!
+Console.WriteLine("Wahoo!");
 
 await app.StartAsync();

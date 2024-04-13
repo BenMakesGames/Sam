@@ -1,5 +1,3 @@
-using System.Buffers;
-using System.Xml;
 using FindMeAJob.AI.Plugins;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -12,54 +10,43 @@ namespace FindMeAJob.AI;
 public sealed class Sam: IHostedService
 {
     private Kernel Kernel { get; }
-    private IChatCompletionService Brain { get; }
+    private IChatCompletionService ChatService { get; }
     private ChatHistory History { get; } = [];
 
-    private static readonly string[] PrefixesToGetBensAttention = [ "BEN", "**BEN**", "JOB", "**JOB**" ];
+    private OpenAIPromptExecutionSettings Settings { get; } = new()
+    {
+        ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions
+    };
 
-    // this doesn't work yet:
-    /*
-    private static readonly SearchValues<string> PrefixesToGetBensAttention = SearchValues.Create(
-        new string[] {"BEN", "**BEN**", "JOB", "**JOB**"},
-        StringComparison.InvariantCultureIgnoreCase
-    );
-    */
+    private static readonly string[] AttentionPrefixes = [ "BEN", "**BEN**" ];
 
     public Sam(Kernel kernel, IOptions<SamOptions> options)
     {
         Kernel = kernel;
-        Brain = kernel.GetRequiredService<IChatCompletionService>();
+        ChatService = kernel.GetRequiredService<IChatCompletionService>();
 
-        kernel.Plugins.AddFromType<WebPlugin>();
+        kernel.Plugins.AddFromType<WebPageJobSummariesPlugin>();
+        kernel.Plugins.AddFromType<WebPageLinksPlugin>();
 
         // should this all be in config? ... maybe >_>
         History.AddSystemMessage("Your name is Sam. You are an AI written by Ben to help Ben find a job.");
         History.AddSystemMessage($"This is how Ben has described what he's looking for: {options.Value.JobToFind}");
-        History.AddSystemMessage("Please use the methods available to you to locate jobs, and give your recommendations to Ben. Your recommendation should include a link to the job posting (so he can apply!), the job title, why you think it's a good for Ben, and most importantly, a proposed cover letter for the job that starts by stating who and what YOU are (including a link to your source code: https://github.com/BenMakesGames/Sam), your role in the job search, and why you think Ben would be a good fit for the job based on the job's description.");
+        History.AddSystemMessage("Please use the methods available to you to locate jobs; when you find a good match, provide a good match, give your recommendation to Ben by including a link to the job posting (so he can apply!), the job title, why you think it's a good for Ben, and most importantly, a letter to the company from you, that starts by stating who and what YOU are (including a link to your source code: https://github.com/BenMakesGames/Sam), your relationship to Ben, and why you think Ben would be a good fit for the job based on the job's description.");
         History.AddSystemMessage($"Here are some URLs to help get you started: {string.Join(", ", options.Value.UrlsToGetStarted)}");
-        History.AddSystemMessage("Please structure your responses as follows: start your message with \"JOB\" if it's about a job you found; Ben will get back to you with his thoughts on the job. Start your message with \"BEN\" if you have a general question for Ben, such as a request for more information, changes to your functionality, etc. All other messages will be ignored, but you can use these responses to keep notes for yourself.");
+        History.AddSystemMessage("If you need Ben to personally respond to your message, start that message with the text \"BEN\".");
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         // should this all be in config? ... ALMOST CERTAINLY >_>
-        const string bensIntro = "Hey, Sam, this is Ben! Thanks for your help, and again, start your message with \"JOB\" for any jobs you find, and with \"BEN\" if you need my help with anything else, and I'll get back to you! Thanks!";
+        const string bensIntro = "Hey, Sam, this is Ben! Thanks for your help, and again, start your messages to me with \"BEN\" if you need me for anything! Thanks!";
 
         Console.WriteLine($"Ben > {bensIntro}");
         History.AddUserMessage(bensIntro);
 
-        var settings = new OpenAIPromptExecutionSettings()
-        {
-            ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions
-        };
-
         while (true)
         {
-            var result = Brain.GetStreamingChatMessageContentsAsync(
-                History,
-                executionSettings: settings,
-                kernel: Kernel,
-                cancellationToken: cancellationToken);
+            var result = ChatService.GetStreamingChatMessageContentsAsync(History, Settings, Kernel, cancellationToken);
 
             var fullMessage = "";
             var first = true;
@@ -79,15 +66,20 @@ public sealed class Sam: IHostedService
             Console.WriteLine();
             History.AddAssistantMessage(fullMessage);
 
-            if (PrefixesToGetBensAttention.Any(w => fullMessage.StartsWith(w, StringComparison.InvariantCultureIgnoreCase)))
+            if (AttentionPrefixes.Any(w => fullMessage.StartsWith(w, StringComparison.InvariantCultureIgnoreCase)))
             {
+                History.AddAssistantMessage(fullMessage);
+
                 while (true)
                 {
                     Console.Write("Ben > ");
-                    var response = Console.ReadLine();
+                    var response = Console.ReadLine()?.Trim();
 
                     if (!string.IsNullOrWhiteSpace(response))
                     {
+                        if (response.ToLowerInvariant() == "quit" || response.ToLowerInvariant() == "exit")
+                            return;
+
                         Console.WriteLine("Confirm the above message by typing \"yes\".");
                         if (Console.ReadLine()?.Trim().ToLowerInvariant() == "yes")
                         {
