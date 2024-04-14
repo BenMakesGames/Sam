@@ -17,7 +17,7 @@ public class WebPageJobSummariesPlugin
     [Description("gets a summary of a web page, including any job postings found on that web page")]
     public async Task<string> GetWebPageJobSummaries(Kernel kernel, string url)
     {
-        Console.WriteLine($"Sam > GetWebPageJobSummaries {url}");
+        Console.WriteLine($"Sam called GetWebPageJobSummaries {url}");
 
         try
         {
@@ -28,7 +28,7 @@ public class WebPageJobSummariesPlugin
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            Console.WriteLine(e);
             return "ERROR: " + e.Message;
         }
     }

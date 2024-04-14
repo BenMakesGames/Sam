@@ -9,12 +9,9 @@ public class HorriblePuppeteerHelper
 
     public static async Task<IPage> GoToAsync(string url, WaitUntilNavigation waitUntil)
     {
-        if (Browser == null)
-        {
-            await new BrowserFetcher().DownloadAsync();
-            Browser = await Puppeteer.LaunchAsync(new LaunchOptions() { Headless = false }); // I wanna watch! :P
-        }
+        await new BrowserFetcher().DownloadAsync();
 
+        Browser ??= await Puppeteer.LaunchAsync(new LaunchOptions() { Headless = false }); // I wanna watch! :P
         Page ??= await Browser.NewPageAsync();
 
         await Page.GoToAsync(url, waitUntil);

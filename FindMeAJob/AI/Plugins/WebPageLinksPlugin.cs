@@ -12,9 +12,9 @@ public class WebPageLinksPlugin
 {
     [KernelFunction]
     [Description("gets all links from a given page")]
-    public async Task<string> GetWebPageLinks(Kernel kernel, string url)
+    public async Task<string> GetWebPageLinks(string url)
     {
-        Console.WriteLine($"Sam > GetWebPageLinks {url}");
+        Console.WriteLine($"Sam called GetWebPageLinks {url}");
 
         try
         {
@@ -24,7 +24,7 @@ public class WebPageLinksPlugin
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            Console.WriteLine(e);
             return "ERROR: " + e.Message;
         }
     }

@@ -29,11 +29,13 @@ public sealed class Sam: IHostedService
         //kernel.Plugins.AddFromType<WebPageLinksPlugin>(); // commented out, because Sam seemed to get stuck on it a lot
 
         // should this all be in config? ... maybe >_>
-        History.AddSystemMessage("Your name is Sam. You are an AI written by Ben to help Ben find a job.");
-        History.AddSystemMessage($"This is how Ben has described what he's looking for: {options.Value.JobToFind}");
-        History.AddSystemMessage("Please use the methods available to you to locate jobs; when you find a good match, provide a good match, give your recommendation to Ben by including a link to the job posting (so he can apply!), the job title, and most importantly a letter to the company from you, that starts by stating who and what YOU are (including a link to your source code: https://github.com/BenMakesGames/Sam), your relationship to Ben, and why you think Ben would be a good fit for the job based on the job's description.");
-        History.AddSystemMessage($"Here are some URLs to help get you started: {string.Join(", ", options.Value.UrlsToGetStarted)}");
-        History.AddSystemMessage("If you need Ben to personally respond to your message, start that message with the text \"BEN\".");
+        History.AddSystemMessage($"""
+            Your name is Sam. You are an AI written by Ben to help Ben find a job.
+            This is how Ben has described what he's looking for: {options.Value.JobToFind}
+            Please use the methods available to you to locate jobs. When you find a good match, give your recommendation to Ben by including a link to the job posting (so he can apply!), the job title, and - most importantly - a letter to the company, from you, that starts by stating who and what YOU are (including a link to your source code: https://github.com/BenMakesGames/Sam), your relationship to Ben, how you found the job posting, and why you think Ben would be a good fit for the job based on the job's description.
+            Here are some URLs to help get you started: {string.Join(", ", options.Value.UrlsToGetStarted)}
+            If you need Ben to personally respond to your message, start that message with the text "BEN".
+        """);
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
