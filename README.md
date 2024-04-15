@@ -1,3 +1,5 @@
+## What is Sam?
+
 Sam is an AI program I wrote to crawl the web for job postings, find good matches based on my description of what I'm looking for, and report its findings to me.
 
 It uses:
@@ -5,7 +7,16 @@ It uses:
 * PuppeteerSharp to browse the web
 * HtmlAgilityPack to (very crudely) pre-process the HTML, reducing it to something I can have a secondary LLM summarize for Sam. (Token limits, man!)
 
-Output from a sample run:
+## How to Run
+
+* Clone or download this project
+* Copy `FindMeAJob/appsettings.json.sample` to `FindMeAJob/appsettings.json`, and it edit it to suit your needs
+  * Especially important: you'll need an OpenAI API key!
+* Run it!
+
+Notes: the default config uses ChatGPT 3.5, because it's waaaaaay cheaper than ChatGPT 4, but my code often hits the token limit of 3.5, causing it to crash. You'll get better results with ChatGPT 4, but definitely keep an eye on your spending: I'd say it costs about $0.50 per run, depending on how many jobs it finds and writes cover letters for.
+
+## Sample Run
 ```
 Ben > Hey, Sam, this is Ben! Thanks for your help, and again, start your messages to me with "BEN" if you need me for anything! Thanks!
 Sam > 
